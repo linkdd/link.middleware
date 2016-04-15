@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from b3j0f.conf import Configurable, category, Parameter
-from link.middleware import ConnectableMiddleware
+from link.middleware.connectable import ConnectableMiddleware
 
 
 @Configurable(
