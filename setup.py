@@ -13,18 +13,17 @@ AUTHOR = 'David Delassus'
 AUTHOR_EMAIL = 'david.jose.delassus@gmail.com'
 LICENSE = 'MIT'
 REQUIREMENTS = [
-    'b3j0f.conf',
-    'b3j0f.middleware'
+    'b3j0f.conf==0.3.13',
+    'b3j0f.middleware==0.0.1'
 ]
 
 
 def get_cwd():
-    filename = sys.argv[0]
-    return os.path.dirname(os.path.abspath(os.path.expanduser(filename)))
+    return os.path.dirname(os.path.abspath(os.path.expanduser(__file__)))
 
 
 def get_version(default='0.1'):
-    sys.path.append(get_cwd())
+    sys.path.insert(0, get_cwd())
     from link import middleware as mod
 
     return getattr(mod, '__version__', default)
@@ -70,7 +69,6 @@ setup(
     author=AUTHOR,
     author_email=AUTHOR_EMAIL,
     packages=find_packages(),
-    package_dir={'': get_cwd()},
     scripts=get_scripts(),
     test_suite=get_test_suite(),
     install_requires=REQUIREMENTS
