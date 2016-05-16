@@ -36,6 +36,22 @@ link.middleware.udp module
     :undoc-members:
     :show-inheritance:
 
+link.middleware.http module
+---------------------------
+
+.. automodule:: link.middleware.http
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+link.middleware.file module
+---------------------------
+
+.. automodule:: link.middleware.file
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Module contents
 ---------------
 
