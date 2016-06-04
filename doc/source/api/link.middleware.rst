@@ -4,6 +4,14 @@ link.middleware package
 Submodules
 ----------
 
+link.middleware.core module
+---------------------------
+
+.. automodule:: link.middleware.core
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 link.middleware.connectable module
 ----------------------------------
 

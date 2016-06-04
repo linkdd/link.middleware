@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from b3j0f.conf import Configurable, category
-from b3j0f.middleware.url import URLMiddleware
-
+from link.middleware.core import Middleware
 from link.middleware import CONF_BASE_PATH
 
 import os
@@ -12,7 +11,7 @@ import os
     paths='{0}/file.conf'.format(CONF_BASE_PATH),
     conf=category('FILE')
 )
-class FileMiddleware(URLMiddleware):
+class FileMiddleware(Middleware):
     """
     Middleware with the same API as the
     :class:`link.middleware.http.HTTPMiddleware` but with ``file://` URI.

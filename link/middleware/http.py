@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from b3j0f.conf import Configurable, category
-from b3j0f.middleware.url import URLMiddleware, tourl
 
+from link.middleware.core import Middleware
 from link.middleware import CONF_BASE_PATH
 import requests
 
@@ -11,7 +11,7 @@ import requests
     paths='{0}/http.conf'.format(CONF_BASE_PATH),
     conf=category('HTTP')
 )
-class HTTPMiddleware(URLMiddleware):
+class HTTPMiddleware(Middleware):
     """
     HTTP middleware.
     """
@@ -33,7 +33,7 @@ class HTTPMiddleware(URLMiddleware):
         :rtype: str
         """
 
-        response = requests.get(tourl(self))
+        response = requests.get(self.tourl())
 
         if not response.ok:
             raise HTTPMiddleware.Error(response.text)
@@ -51,7 +51,7 @@ class HTTPMiddleware(URLMiddleware):
         :rtype: str
         """
 
-        response = requests.post(tourl(self), data=data)
+        response = requests.post(self.tourl(), data=data)
 
         if not response.ok:
             raise HTTPMiddleware.Error(response.text)
@@ -69,7 +69,7 @@ class HTTPMiddleware(URLMiddleware):
         :rtype: str
         """
 
-        response = requests.put(tourl(self), data=data)
+        response = requests.put(self.tourl(), data=data)
 
         if not response.ok:
             raise HTTPMiddleware.Error(response.text)
@@ -87,7 +87,7 @@ class HTTPMiddleware(URLMiddleware):
         :rtype: str
         """
 
-        response = requests.delete(tourl(self), data=data)
+        response = requests.delete(self.tourl(), data=data)
 
         if not response.ok:
             raise HTTPMiddleware.Error(response.text)
@@ -102,7 +102,7 @@ class HTTPMiddleware(URLMiddleware):
         :rtype: list
         """
 
-        response = requests.options(tourl(self))
+        response = requests.options(self.tourl())
 
         if not response.ok:
             raise HTTPMiddleware.Error(response.text)
@@ -117,7 +117,7 @@ class HTTPMiddleware(URLMiddleware):
         :rtype: dict
         """
 
-        response = requests.head(tourl(self))
+        response = requests.head(self.tourl())
 
         if not response.ok:
             raise HTTPMiddleware.Error(response.text)
@@ -135,7 +135,7 @@ class HTTPMiddleware(URLMiddleware):
         :rtype: str
         """
 
-        response = requests.patch(tourl(self), data=data)
+        response = requests.patch(self.tourl(), data=data)
 
         if not response.ok:
             raise HTTPMiddleware.Error(response.text)

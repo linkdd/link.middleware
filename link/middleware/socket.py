@@ -1,17 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from b3j0f.conf import Configurable, category, Parameter
+from b3j0f.conf import Configurable, category
 from link.middleware.connectable import ConnectableMiddleware
 from link.middleware import CONF_BASE_PATH
 
 
 @Configurable(
     paths='{0}/socket.conf'.format(CONF_BASE_PATH),
-    conf=category(
-        'SOCKET',
-        Parameter(name='host', value='localhost'),
-        Parameter(name='port', ptype=int, value=8000)
-    )
+    conf=category('SOCKET')
 )
 class SocketMiddleware(ConnectableMiddleware):
     """

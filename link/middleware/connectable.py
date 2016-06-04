@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from b3j0f.middleware import Middleware
+from link.middleware.core import Middleware
 
 
 class ConnectableMiddleware(Middleware):
     """
     Middleware class connecting to a remote service.
     """
-
-    def __init__(self, *args, **kwargs):
-        super(ConnectableMiddleware, self).__init__(*args, **kwargs)
-
-        self._conn = None
 
     def _connect(self):
         """
