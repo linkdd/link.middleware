@@ -116,11 +116,44 @@ class Middleware(object):
                         err
                     )
 
+                netloc = parseduri.netloc.split('@', 1)
+
+                if len(netloc) == 2:
+                    authority, hosts = netloc
+                    authority = authority.split(':', 1)
+
+                    if len(authority) == 2:
+                        username, password = authority
+
+                    else:
+                        username = authority
+                        password = None
+
+                    hosts = hosts.split(',')
+
+                else:
+                    username, password = None, None
+                    hosts = netloc.split(',')
+
+                parsedhosts = []
+
+                for host in hosts:
+                    host = host.split(':', 1)
+
+                    if len(host) == 2:
+                        host, port = host
+                        port = int(port)
+
+                    else:
+                        host = host
+                        port = None
+
+                    parsedhosts.append((host, port))
+
                 kwargs = {
-                    'user': parseduri.username,
-                    'pwd': parseduri.password,
-                    'host': parseduri.hostname,
-                    'port': parseduri.port,
+                    'user': username,
+                    'pwd': password,
+                    'hosts': parsedhosts,
                     'path': path,
                     'fragment': parseduri.fragment
                 }
@@ -144,18 +177,19 @@ class Middleware(object):
         self,
         user=None,
         pwd=None,
-        host='localhost',
-        port=None,
+        hosts=None,
         path=None,
         fragment='',
         **kwargs
     ):
         super(Middleware, self).__init__()
 
+        if hosts is None:
+            hosts = []
+
         self.user = user
         self.pwd = pwd
-        self.host = host
-        self.port = port
+        self.hosts = hosts
         self.path = path
         self.fragment = fragment
 
@@ -177,7 +211,7 @@ class Middleware(object):
                 name: var
                 for name, var in getmembers(self, lambda m: not isroutine(m))
                 if name[0] != '_' and name not in [
-                    'user', 'pwd', 'host', 'port', 'path', 'fragment'
+                    'user', 'pwd', 'hosts', 'path', 'fragment'
                 ]
             }
 
@@ -188,16 +222,30 @@ class Middleware(object):
 
             query = urlencode(kwargs)
 
-            netloc = '{0}{1}{2}'.format(
-                (
-                    '{0}{1}@'.format(
-                        self.user if self.user else '',
-                        ':{0}'.format(self.pwd) if self.pwd else ''
-                    )
-                ) if self.user else '',
-                self.host,
-                ':{0}'.format(self.port) if self.port else ''
-            )
+            # build netloc
+
+            if self.user:
+                if self.pwd:
+                    authority = '{0}:{1}@'.format(self.user, self.pwd)
+
+                else:
+                    authority = '{0}@'.format(self.user)
+
+            else:
+                authority = ''
+
+            hosts = []
+
+            for host, port in self.hosts:
+                if port is not None:
+                    hosts.append('{0}:{1}'.format(host, port))
+
+                else:
+                    hosts.append(host)
+
+            hosts = ','.join(hosts)
+
+            netloc = '{0}{1}'.format(authority, hosts)
 
             return urlunsplit(
                 SplitResult(
