@@ -14,39 +14,49 @@ class SocketMiddleware(ConnectableMiddleware):
     Socket middleware.
     """
 
-    def new_socket(self):
+    def new_socket(self, host, port):
         """
         Create a new socket (must be overriden).
 
+        :param host: host to connect to
+        :type host: str
+        :param port: port to connect to
+        :type port: int
         :returns: socket object
         """
 
         raise NotImplementedError()
 
     def _connect(self):
-        return self.new_socket()
+        socks = [
+            self.new_socket(host, port)
+            for host, port in self.hosts
+        ]
 
-    def _disconnect(self, conn):
-        conn.close()
+        return socks
 
-    def _isconnected(self, conn):
-        return conn is not None
+    def _disconnect(self, socks):
+        for sock in socks:
+            sock.close()
 
-    def _send(self, conn, data):
+    def _isconnected(self, socks):
+        return any([sock is not None for sock in socks])
+
+    def _send(self, sock, data):
         """
         Send data into socket (must be overriden).
 
-        :param conn: socket as returned by ``new_socket()``
+        :param sock: socket as returned by ``new_socket()``
         :param data: data to send
         """
 
         raise NotImplementedError()
 
-    def _receive(self, conn, bufsize):
+    def _receive(self, sock, bufsize):
         """
         Fetch data from socket (must be overriden).
 
-        :param conn: socket as returned by ``new_socket()``
+        :param sock: socket as returned by ``new_socket()``
         :param bufsize: Size of data to fetch
         :returns: data read from socket
         """
@@ -60,7 +70,8 @@ class SocketMiddleware(ConnectableMiddleware):
         :param data: data to send
         """
 
-        self._send(self.conn, data)
+        for sock in self.conn:
+            self._send(sock, data)
 
     def receive(self, bufsize):
         """
@@ -70,4 +81,13 @@ class SocketMiddleware(ConnectableMiddleware):
         :returns: data read from middleware
         """
 
-        return self._receive(self.conn, bufsize)
+        data = []
+
+        for sock in self.conn:
+            data.append(self._receive(sock, bufsize))
+
+        if len(data) == 1:
+            return data[0]
+
+        else:
+            return data

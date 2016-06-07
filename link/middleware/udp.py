@@ -18,13 +18,14 @@ class UDPMiddleware(SocketMiddleware):
 
     __protocols__ = ['udp']
 
-    def new_socket(self):
+    def new_socket(self, host, port):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sock.bind((self.host, self.port))
+        sock.bind((host, port))
         return sock
 
     def send(self, data, host, port):
-        self._send(self.conn, data, host, port)
+        for sock in self.conn:
+            self._send(sock, data, host, port)
 
     def _send(self, sock, data, host, port):
         sock.sendto(data, (host, port))

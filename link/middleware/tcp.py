@@ -18,9 +18,9 @@ class TCPMiddleware(SocketMiddleware):
 
     __protocols__ = ['tcp']
 
-    def new_socket(self):
+    def new_socket(self, host, port):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((self.host, self.port))
+        sock.connect((host, port))
         return sock
 
     def _send(self, sock, data):
