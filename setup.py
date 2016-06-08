@@ -13,8 +13,23 @@ AUTHOR = 'David Delassus'
 AUTHOR_EMAIL = 'david.jose.delassus@gmail.com'
 LICENSE = 'MIT'
 REQUIREMENTS = [
-    'b3j0f.conf==0.3.18',
-    'requests==2.10.0'
+    'b3j0f.conf>=0.3.18',
+    'requests>=2.10.0'
+]
+
+CLASSIFIERS = [
+    'Development Status :: 4 - Beta',
+    'License :: OSI Approved :: MIT License',
+    'Operating System :: OS Independent',
+    'Topic :: Utilities',
+    'Topic :: Software Development :: Libraries :: Python Modules',
+    'Intended Audience :: Developers',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 2.7',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.4',
+    'Programming Language :: Python :: 3.5',
+    'Programming Language :: Python :: Implementation :: CPython'
 ]
 
 
@@ -53,9 +68,7 @@ def get_scripts():
 
 
 def get_test_suite():
-    path = os.path.join(get_cwd(), 'tests')
-
-    return 'tests' if os.path.exists(path) else None
+    return 'link'
 
 
 setup(
@@ -71,5 +84,6 @@ setup(
     packages=find_packages(),
     scripts=get_scripts(),
     test_suite=get_test_suite(),
-    install_requires=REQUIREMENTS
+    install_requires=REQUIREMENTS,
+    classifiers=CLASSIFIERS
 )
