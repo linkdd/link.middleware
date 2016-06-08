@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from setuptools import setup, find_packages
-import sys
 import os
+import re
 
 
 NAME = 'link.middleware'
@@ -38,10 +38,15 @@ def get_cwd():
 
 
 def get_version(default='0.1'):
-    sys.path.insert(0, get_cwd())
-    from link import middleware as mod
+    _name = NAME.replace('.', os.sep)
+    path = os.path.join(get_cwd(), _name, '__init__.py')
 
-    return getattr(mod, '__version__', default)
+    with open(path) as f:
+        stream = f.read()
+        regex = re.compile(r'.*__version__ = \'(.*?)\'', re.S)
+        version = regex.match(stream).group(1)
+
+    return version
 
 
 def get_long_description():
