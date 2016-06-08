@@ -44,7 +44,13 @@ def get_version(default='0.1'):
     with open(path) as f:
         stream = f.read()
         regex = re.compile(r'.*__version__ = \'(.*?)\'', re.S)
-        version = regex.match(stream).group(1)
+        version = regex.match(stream)
+
+        if version is None:
+            version = default
+
+        else:
+            version = version.group(1)
 
     return version
 
