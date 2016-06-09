@@ -8,6 +8,11 @@ class ConnectableMiddleware(Middleware):
     Middleware class connecting to a remote service.
     """
 
+    def __init__(self, *args, **kwargs):
+        super(ConnectableMiddleware, self).__init__(*args, **kwargs)
+
+        self._conn = None
+
     def _connect(self):
         """
         Create a connection to the remote service (must be overriden).
