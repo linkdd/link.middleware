@@ -106,7 +106,7 @@ class Middleware(object):
 
             for protocol in protocols:
                 try:
-                    cls = Middleware.get_middlewares_by_protocol(protocol)[0]
+                    cls = Middleware.get_middlewares_by_protocols(protocol)[0]
 
                 except IndexError as err:
                     raise_from(
@@ -133,7 +133,7 @@ class Middleware(object):
 
                 else:
                     username, password = None, None
-                    hosts = netloc.split(',')
+                    hosts = netloc[0].split(',')
 
                 parsedhosts = []
 
