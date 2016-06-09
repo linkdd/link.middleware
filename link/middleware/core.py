@@ -99,7 +99,7 @@ class Middleware(object):
 
             protocols = reversed(parseduri.scheme.split('+'))
             path = parseduri.path
-            query = parse_qs(parseduri)
+            query = parse_qs(parseduri.query)
 
             if path:
                 path = path[1:].split('/')
