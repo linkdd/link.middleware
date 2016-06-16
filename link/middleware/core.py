@@ -133,6 +133,8 @@ class Middleware(object):
                 path = path[1:].split('/')
 
             for protocol in protocols:
+                cls = None
+
                 classes = Middleware.get_middlewares_by_protocols(protocol)
 
                 if len(classes) == 0:
@@ -141,18 +143,24 @@ class Middleware(object):
                     )
 
                 if middleware is not None:
-                    for cls in classes:
+                    for candidate in classes:
                         bases = middleware.constraints()
 
                         for base in bases:
-                            if base not in cls.mro():
-                                fmt = 'Middleware {} is not a subclass of {}'
-                                raise Middleware.Error(
-                                    fmt.format(
-                                        cls.__name__,
-                                        base.__name__
-                                    )
-                                )
+                            if base in candidate.mro():
+                                cls = candidate
+                                break
+
+                        if cls is not None:
+                            break
+
+                    else:
+                        raise Middleware.Error(
+                            'No middleware <{0}> found for: {1}'.format(
+                                protocol,
+                                middleware.__class__.__name__
+                            )
+                        )
 
                 netloc = parseduri.netloc.split('@', 1)
 
