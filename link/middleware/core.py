@@ -162,6 +162,9 @@ class Middleware(object):
                             )
                         )
 
+                else:
+                    cls = classes[0]
+
                 netloc = parseduri.netloc.split('@', 1)
 
                 if len(netloc) == 2:
