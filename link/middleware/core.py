@@ -8,7 +8,7 @@ from six.moves.urllib.parse import urlencode
 
 from six import add_metaclass, raise_from, string_types
 
-from inspect import getmembers, isroutine
+from inspect import getmembers, isroutine, isclass
 
 
 MIDDLEWARES_BY_PROTOCOLS = {}
@@ -34,6 +34,7 @@ class Middleware(object):
     Basic middleware class, resolvable via URLs.
     """
 
+    __constraints__ = []
     __protocols__ = []
 
     class Error(Exception):
@@ -49,13 +50,40 @@ class Middleware(object):
         """
 
         bases = cls.mro()
-        result = cls.__protocols__
+
+        if hasattr(cls, '__protocols__'):
+            result = cls.__protocols__
+
+        else:
+            result = []
 
         for base in bases:
             if hasattr(base, '__protocols__'):
                 result = base.__protocols__ + result
 
         return result
+
+    @classmethod
+    def constraints(cls):
+        """
+        Get all constraints enforced by class.
+        A constraint is used when the middleware is instantiated with a child
+        middleware (``protocol1+protocol2://``). The child middleware must be
+        a subclass of each class specified by the constraint.
+
+        :returns: list of constraints
+        :rtype: list
+        """
+
+        bases = cls.mro()
+        result = []
+
+        for base in reversed(bases):
+            if hasattr(base, '__constraints__'):
+                result += base.__constraints__
+
+        if hasattr(cls, '__constraints__'):
+            result += cls.__constraints__
 
     @staticmethod
     def get_middlewares_by_protocols(protocols):
@@ -105,16 +133,26 @@ class Middleware(object):
                 path = path[1:].split('/')
 
             for protocol in protocols:
-                try:
-                    cls = Middleware.get_middlewares_by_protocols(protocol)[0]
+                classes = Middleware.get_middlewares_by_protocols(protocol)
 
-                except IndexError as err:
-                    raise_from(
-                        Middleware.Error(
-                            'Unknown protocol: {0}'.format(protocol)
-                        ),
-                        err
+                if len(classes) == 0:
+                    raise Middleware.Error(
+                        'Unknown protocol: {0}'.format(protocol)
                     )
+
+                if middleware is not None:
+                    for cls in classes:
+                        bases = middleware.constraints()
+
+                        for base in bases:
+                            if base not in cls.mro():
+                                fmt = 'Middleware {} is not a subclass of {}'
+                                raise Middleware.Error(
+                                    fmt.format(
+                                        cls.__name__,
+                                        base.__name__
+                                    )
+                                )
 
                 netloc = parseduri.netloc.split('@', 1)
 
