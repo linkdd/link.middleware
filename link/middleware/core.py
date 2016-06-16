@@ -85,6 +85,8 @@ class Middleware(object):
         if hasattr(cls, '__constraints__'):
             result += cls.__constraints__
 
+        return result
+
     @staticmethod
     def get_middlewares_by_protocols(protocols):
         """
@@ -129,6 +131,13 @@ class Middleware(object):
             path = parseduri.path
             query = parse_qs(parseduri.query)
 
+            for key in query.keys():
+                if key.endswith('[]'):
+                    query[key[:-2]] = query.pop(key)
+
+                else:
+                    query[key] = query[key][0]
+
             if path:
                 path = path[1:].split('/')
 
@@ -144,10 +153,10 @@ class Middleware(object):
 
                 if middleware is not None:
                     for candidate in classes:
-                        bases = middleware.constraints()
+                        bases = candidate.constraints()
 
                         for base in bases:
-                            if base in candidate.mro():
+                            if base in middleware.__class__.mro():
                                 cls = candidate
                                 break
 
