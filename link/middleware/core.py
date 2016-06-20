@@ -6,9 +6,9 @@ from six.moves.urllib.parse import urlunsplit, SplitResult
 from six.moves.urllib.parse import urlsplit, parse_qs
 from six.moves.urllib.parse import urlencode
 
-from six import add_metaclass, raise_from, string_types
+from six import add_metaclass, string_types
 
-from inspect import getmembers, isroutine, isclass
+from inspect import getmembers, isroutine
 
 
 MIDDLEWARES_BY_PROTOCOLS = {}

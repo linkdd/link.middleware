@@ -73,3 +73,6 @@ class ConnectableMiddleware(Middleware):
         if self.isconnected():
             self._disconnect(self._conn)
             self._conn = None
+
+    def __del__(self):
+        self.disconnect()
