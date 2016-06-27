@@ -353,10 +353,10 @@ class Middleware(object):
 
     def features(self):
         """
-        Get all features supported by class (and children).
+        Get all features supported by middleware (and children).
 
-        :returns: list of features
-        :rtype: list
+        :returns: list of features by middleware
+        :rtype: list of tuple (middleware, feature)
         """
 
         bases = self.__class__.mro()
@@ -364,10 +364,16 @@ class Middleware(object):
 
         for base in reversed(bases):
             if hasattr(base, '__features__'):
-                result += base.__features__
+                result += [
+                    (self, feature_cls)
+                    for feature_cls in base.__features__
+                ]
 
         if hasattr(self.__class__, '__features__'):
-            result += self.__class__.__features__
+            result += [
+                (self, feature_cls)
+                for feature_cls in self.__class__.__features__
+            ]
 
         child = self.get_child_middleware()
 
@@ -387,7 +393,7 @@ class Middleware(object):
         :rtype: bool
         """
 
-        for feature in self.features():
+        for _, feature in self.features():
             if feature.name == name:
                 return True
 
@@ -409,9 +415,9 @@ class Middleware(object):
         :raises AttributeError: When feature does not exist
         """
 
-        for feature in self.features():
+        for middleware, feature in self.features():
             if feature.name == name:
-                return feature(self, *args, **kwargs)
+                return feature(middleware, *args, **kwargs)
 
         raise AttributeError('No such feature: {0}'.format(name))
 
