@@ -36,6 +36,7 @@ class Middleware(object):
 
     __constraints__ = []
     __protocols__ = []
+    __features__ = []
 
     class Error(Exception):
         pass
@@ -217,11 +218,9 @@ class Middleware(object):
                 }
                 kwargs.update(query)
 
-                if middleware is None:
-                    middleware = cls(**kwargs)
-
-                else:
-                    middleware = cls(middleware, **kwargs)
+                child = middleware if middleware is not None else None
+                middleware = cls(**kwargs)
+                middleware.set_child_middleware(child)
 
             if cache:
                 MIDDLEWARES_BY_URL[uri] = middleware
@@ -250,6 +249,8 @@ class Middleware(object):
         self.hosts = hosts
         self.path = path
         self.fragment = fragment
+
+        self._child = None
 
     def tourl(self):
         """
@@ -314,3 +315,118 @@ class Middleware(object):
                     query=query
                 )
             )
+
+    def set_child_middleware(self, middleware):
+        """
+        Set child middleware (make sure the child middleware validates the
+        middleware constraints).
+
+        :param middleware: Child middleware
+        :type middleware: Middleware
+        """
+
+        bases = self.__class__.constraints()
+
+        for base in bases:
+            if base in middleware.__class__.mro():
+                break
+
+        else:
+            raise Middleware.Error(
+                'Middleware <{0}> does not validates <{1}> constraints'.format(
+                    middleware.__class__.__name__,
+                    self.__class__.__name__
+                )
+            )
+
+        self._child = middleware
+
+    def get_child_middleware(self):
+        """
+        Get child middleware.
+
+        :returns: Child middleware or None
+        :rtype: Middleware
+        """
+
+        return self._child
+
+    def features(self):
+        """
+        Get all features supported by class (and children).
+
+        :returns: list of features
+        :rtype: list
+        """
+
+        bases = self.__class__.mro()
+        result = []
+
+        for base in reversed(bases):
+            if hasattr(base, '__features__'):
+                result += base.__features__
+
+        if hasattr(self.__class__, '__features__'):
+            result += self.__class__.__features__
+
+        child = self.get_child_middleware()
+
+        if child is not None:
+            result += child.features()
+
+        return result
+
+    def has_feature(self, name):
+        """
+        Check if feature exists.
+
+        :param name: feature's name
+        :type name: str
+
+        :returns: ``True`` if feature exists, ``False`` otherwise
+        :rtype: bool
+        """
+
+        for feature in self.features():
+            if feature.name == name:
+                return True
+
+        return False
+
+    def get_feature(self, name, *args, **kwargs):
+        """
+        Instantiate feature.
+
+        :param name: feature's name
+        :type name: str
+
+        :param args: Positional arguments for feature's constructor
+        :param kwargs: Keyword arguments for feature's constructor
+
+        :returns: Newly created feature
+        :rtype: Feature
+
+        :raises AttributeError: When feature does not exist
+        """
+
+        for feature in self.features():
+            if feature.name == name:
+                return feature(self, *args, **kwargs)
+
+        raise AttributeError('No such feature: {0}'.format(name))
+
+
+class Feature(object):
+    """
+    Base class for middleware's feature.
+
+    :param middleware: Middleware providing this feature
+    :type middleware: Middleware
+    """
+
+    name = None
+
+    def __init__(self, middleware, *args, **kwargs):
+        super(Feature, self).__init__(*args, **kwargs)
+
+        self.middleware = middleware
