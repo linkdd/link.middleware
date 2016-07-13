@@ -220,7 +220,9 @@ class Middleware(object):
 
                 child = middleware if middleware is not None else None
                 middleware = cls(**kwargs)
-                middleware.set_child_middleware(child)
+
+                if child is not None:
+                    middleware.set_child_middleware(child)
 
             if cache:
                 MIDDLEWARES_BY_URL[uri] = middleware
