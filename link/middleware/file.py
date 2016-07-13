@@ -27,7 +27,7 @@ class FileMiddleware(Middleware):
         :rtype: str
         """
 
-        path = os.path.join(self.path)
+        path = '{0}{1}'.format(os.sep, os.path.join(*self.path))
 
         with open(path) as f:
             result = f.read()
@@ -52,7 +52,7 @@ class FileMiddleware(Middleware):
         :type data: str
         """
 
-        path = os.path.join(self.path)
+        path = '{0}{1}'.format(os.sep, os.path.join(*self.path))
 
         with open(path, 'w') as f:
             f.write(data)
@@ -64,7 +64,7 @@ class FileMiddleware(Middleware):
         :param data: unused (only for API compatibility)
         """
 
-        path = os.path.join(self.path)
+        path = '{0}{1}'.format(os.sep, os.path.join(*self.path))
 
         if os.path.exists(path):
             os.remove(path)
