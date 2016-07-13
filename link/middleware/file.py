@@ -27,7 +27,9 @@ class FileMiddleware(Middleware):
         :rtype: str
         """
 
-        with open(self.path) as f:
+        path = os.path.join(self.path)
+
+        with open(path) as f:
             result = f.read()
 
         return result
@@ -50,7 +52,9 @@ class FileMiddleware(Middleware):
         :type data: str
         """
 
-        with open(self.path, 'w') as f:
+        path = os.path.join(self.path)
+
+        with open(path, 'w') as f:
             f.write(data)
 
     def delete(self, data):
@@ -60,8 +64,10 @@ class FileMiddleware(Middleware):
         :param data: unused (only for API compatibility)
         """
 
-        if os.path.exists(self.path):
-            os.remove(self.path)
+        path = os.path.join(self.path)
+
+        if os.path.exists(path):
+            os.remove(path)
 
     def options(self):
         raise NotImplementedError('Unsupported by protocol')
