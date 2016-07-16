@@ -12,7 +12,7 @@ class HTTPMiddleware(Middleware):
 
     __protocols__ = ['http']
 
-    class Error(Exception):
+    class Error(Middleware.Error):
         """
         Error class raised by middleware methods.
         """
