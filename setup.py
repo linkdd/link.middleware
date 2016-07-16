@@ -14,7 +14,8 @@ AUTHOR_EMAIL = 'david.jose.delassus@gmail.com'
 LICENSE = 'MIT'
 REQUIREMENTS = [
     'b3j0f.conf>=0.3.18',
-    'requests>=2.10.0'
+    'requests>=2.10.0',
+    'mock>=2.0.0'
 ]
 
 CLASSIFIERS = [
