@@ -3,11 +3,11 @@
 from b3j0f.utils.iterable import isiterable
 
 from six.moves.urllib.parse import urlunsplit, SplitResult
-from six.moves.urllib.parse import urlsplit, parse_qs
+from six.moves.urllib.parse import urlsplit, parse_qsl
 from six.moves.urllib.parse import urlencode
 from six import string_types
 
-from inspect import getmembers, isroutine
+from inspect import getmembers, isroutine, isclass
 
 
 MIDDLEWARES_BY_PROTOCOLS = {}
@@ -129,14 +129,18 @@ class Middleware(object):
 
             protocols = reversed(parseduri.scheme.split('+'))
             path = parseduri.path
-            query = parse_qs(parseduri.query)
+            parsedquery = parse_qsl(parseduri.query)
+            query = {}
 
-            for key in query.keys():
-                if key.endswith('[]'):
-                    query[key[:-2]] = query.pop(key)
+            for key, val in parsedquery:
+                if key in query:
+                    if not isiterable(query[key], exclude=string_types):
+                        query[key] = [query[key]]
+
+                    query[key].append(val)
 
                 else:
-                    query[key] = query[key][0]
+                    query[key] = val
 
             if path:
                 path = path[1:].split('/')
@@ -184,7 +188,7 @@ class Middleware(object):
                         username, password = authority
 
                     else:
-                        username = authority
+                        username = authority[0]
                         password = None
 
                     hosts = hosts.split(',')
@@ -203,7 +207,7 @@ class Middleware(object):
                         port = int(port)
 
                     else:
-                        host = host
+                        host = host[0]
                         port = None
 
                     parsedhosts.append((host, port))
@@ -269,7 +273,10 @@ class Middleware(object):
         else:
             kwargs = {
                 name: var
-                for name, var in getmembers(self, lambda m: not isroutine(m))
+                for name, var in getmembers(
+                    self,
+                    lambda m: not isroutine(m) and not isclass(m)
+                )
                 if name[0] != '_' and name not in [
                     'user', 'pwd', 'hosts', 'path', 'fragment'
                 ]
@@ -280,7 +287,7 @@ class Middleware(object):
             if path:
                 path = '/'.join([''] + path)
 
-            query = urlencode(kwargs)
+            query = urlencode(kwargs, doseq=True)
 
             # build netloc
 
