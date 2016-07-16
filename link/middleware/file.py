@@ -37,7 +37,9 @@ class FileMiddleware(Middleware):
         :type data: str
         """
 
-        with open(self.path, 'a') as f:
+        path = '{0}{1}'.format(os.sep, os.path.join(*self.path))
+
+        with open(path, 'a') as f:
             f.write(data)
 
     def put(self, data):
