@@ -102,12 +102,12 @@ class Middleware(object):
         if not isiterable(protocols, exclude=string_types):
             protocols = [protocols]
 
-        middlewares = [
-            set(MIDDLEWARES_BY_PROTOCOLS.get(protocol, []))
-            for protocol in protocols
-        ]
+        middlewares = []
 
-        return list(set.intersection(*middlewares))
+        for protocol in protocols:
+            middlewares += MIDDLEWARES_BY_PROTOCOLS.get(protocol, [])
+
+        return middlewares
 
     @staticmethod
     def get_middleware_by_uri(uri, cache=True):
