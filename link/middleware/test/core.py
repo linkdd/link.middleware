@@ -135,9 +135,9 @@ class TestMiddleware(UTCase):
 
     def test_09_tourl_nocache(self):
         uris = [
-            'dummy://host:80/path?foo=bar&bar=baz&foo=biz'
-            'dummy://user:pwd@host:80/path?foo=bar&bar=baz&foo=biz'
-            'dummy://user@host/path?foo=bar&bar=baz&foo=biz'
+            'dummy://host:80/path?foo=bar&bar=baz&foo=biz',
+            'dummy://user:pwd@host:80/path?foo=bar&bar=baz&foo=biz',
+            'dummy://user@host/path?foo=bar&bar=baz&foo=biz',
             'dummy://user@host,host2:80/path?foo=bar&bar=baz&foo=biz'
         ]
 
