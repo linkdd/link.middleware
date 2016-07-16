@@ -105,6 +105,9 @@ class TestMiddleware(UTCase):
         self.assertEqual(child.foo, ['bar', 'biz'])
         self.assertEqual(child.bar, 'baz')
 
+        with self.assertRaises(Middleware.Error):
+            mid.set_child_middleware(NotSoDummy())
+
     def test_06_uri_fail(self):
         with self.assertRaises(Middleware.Error):
             Middleware.get_middleware_by_uri('dumy://')
@@ -131,24 +134,31 @@ class TestMiddleware(UTCase):
         self.assertEqual(uri, result)
 
     def test_09_tourl_nocache(self):
-        uri = 'dummy://user:pwd@host:80/path?foo=bar&bar=baz&foo=biz'
-        mid = Middleware.get_middleware_by_uri(uri, cache=False)
-        result = mid.tourl()
+        uris = [
+            'dummy://host:80/path?foo=bar&bar=baz&foo=biz'
+            'dummy://user:pwd@host:80/path?foo=bar&bar=baz&foo=biz'
+            'dummy://user@host/path?foo=bar&bar=baz&foo=biz'
+            'dummy://user@host,host2:80/path?foo=bar&bar=baz&foo=biz'
+        ]
 
-        parseduri = urlsplit(uri)
-        parsedres = urlsplit(result)
+        for uri in uris:
+            mid = Middleware.get_middleware_by_uri(uri, cache=False)
+            result = mid.tourl()
 
-        parseduri_query = parse_qsl(parseduri.query)
-        parsedres_query = parse_qsl(parsedres.query)
+            parseduri = urlsplit(uri)
+            parsedres = urlsplit(result)
 
-        self.assertEqual(parseduri.scheme, parsedres.scheme)
-        self.assertEqual(parseduri.username, parsedres.username)
-        self.assertEqual(parseduri.password, parsedres.password)
-        self.assertEqual(parseduri.hostname, parsedres.hostname)
-        self.assertEqual(parseduri.port, parsedres.port)
-        self.assertEqual(parseduri.path, parsedres.path)
+            parseduri_query = parse_qsl(parseduri.query)
+            parsedres_query = parse_qsl(parsedres.query)
 
-        self.assertItemsEqual(parseduri_query, parsedres_query)
+            self.assertEqual(parseduri.scheme, parsedres.scheme)
+            self.assertEqual(parseduri.username, parsedres.username)
+            self.assertEqual(parseduri.password, parsedres.password)
+            self.assertEqual(parseduri.hostname, parsedres.hostname)
+            self.assertEqual(parseduri.port, parsedres.port)
+            self.assertEqual(parseduri.path, parsedres.path)
+
+            self.assertItemsEqual(parseduri_query, parsedres_query)
 
 
 if __name__ == '__main__':
