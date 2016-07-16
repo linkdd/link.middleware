@@ -39,7 +39,7 @@ class ConnectableMiddleware(Middleware):
         :returns: True if connection is alive, False otherwise
         """
 
-        return False
+        raise NotImplementedError()
 
     @property
     def conn(self):
