@@ -1,16 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from b3j0f.conf import Configurable, category
 from link.middleware.socket import SocketMiddleware
-from link.middleware import CONF_BASE_PATH
-
+from link.middleware.core import register_middleware
 import socket
 
 
-@Configurable(
-    paths='{0}/tcp.conf'.format(CONF_BASE_PATH),
-    conf=category('TCP')
-)
+@register_middleware
 class TCPMiddleware(SocketMiddleware):
     """
     TCP socket middleware.

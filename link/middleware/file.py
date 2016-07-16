@@ -1,16 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from b3j0f.conf import Configurable, category
-from link.middleware.core import Middleware
-from link.middleware import CONF_BASE_PATH
+from link.middleware.core import Middleware, register_middleware
 
 import os
 
 
-@Configurable(
-    paths='{0}/file.conf'.format(CONF_BASE_PATH),
-    conf=category('FILE')
-)
+@register_middleware
 class FileMiddleware(Middleware):
     """
     Middleware with the same API as the
@@ -36,13 +31,14 @@ class FileMiddleware(Middleware):
 
     def post(self, data):
         """
-        Write data to file pointed by middleware.
+        Append data to file pointed by middleware.
 
-        :param data: data to write
+        :param data: data to append
         :type data: str
         """
 
-        self.put(data)
+        with open(self.path, 'a') as f:
+            f.write(data)
 
     def put(self, data):
         """

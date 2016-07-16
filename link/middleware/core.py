@@ -5,8 +5,7 @@ from b3j0f.utils.iterable import isiterable
 from six.moves.urllib.parse import urlunsplit, SplitResult
 from six.moves.urllib.parse import urlsplit, parse_qs
 from six.moves.urllib.parse import urlencode
-
-from six import add_metaclass, string_types
+from six import string_types
 
 from inspect import getmembers, isroutine
 
@@ -15,20 +14,20 @@ MIDDLEWARES_BY_PROTOCOLS = {}
 MIDDLEWARES_BY_URL = {}
 
 
-class MetaMiddleware(type):
+def register_middleware(cls):
     """
-    Metaclas registering middlewares.
+    Register middleware's protocols.
     """
 
-    def __init__(cls, name, bases, attrs):
-        super(MetaMiddleware, cls).__init__(name, bases, attrs)
+    for protocol in cls.protocols():
+        middlewares = MIDDLEWARES_BY_PROTOCOLS.setdefault(protocol, [])
 
-        for protocol in cls.protocols():
-            middlewares = MIDDLEWARES_BY_PROTOCOLS.setdefault(protocol, [])
+        if cls not in middlewares:
             middlewares.append(cls)
 
+    return cls
 
-@add_metaclass(MetaMiddleware)
+
 class Middleware(object):
     """
     Basic middleware class, resolvable via URLs.
@@ -36,7 +35,6 @@ class Middleware(object):
 
     __constraints__ = []
     __protocols__ = []
-    __features__ = []
 
     class Error(Exception):
         pass
@@ -52,15 +50,17 @@ class Middleware(object):
 
         bases = cls.mro()
 
-        if hasattr(cls, '__protocols__'):
-            result = cls.__protocols__
-
-        else:
-            result = []
+        result = []
 
         for base in bases:
             if hasattr(base, '__protocols__'):
-                result = base.__protocols__ + result
+                protocols = [
+                    protocol
+                    for protocol in base.__protocols__
+                    if protocol not in result
+                ]
+
+                result = protocols + result
 
         return result
 
@@ -81,10 +81,9 @@ class Middleware(object):
 
         for base in reversed(bases):
             if hasattr(base, '__constraints__'):
-                result += base.__constraints__
-
-        if hasattr(cls, '__constraints__'):
-            result += cls.__constraints__
+                for constraint in base.__constraints__:
+                    if constraint not in result:
+                        result.append(constraint)
 
         return result
 
@@ -352,89 +351,3 @@ class Middleware(object):
         """
 
         return self._child
-
-    def features(self):
-        """
-        Get all features supported by middleware (and children).
-
-        :returns: list of features by middleware
-        :rtype: list of tuple (middleware, feature)
-        """
-
-        bases = self.__class__.mro()
-        result = []
-
-        for base in reversed(bases):
-            if hasattr(base, '__features__'):
-                result += [
-                    (self, feature_cls)
-                    for feature_cls in base.__features__
-                ]
-
-        if hasattr(self.__class__, '__features__'):
-            result += [
-                (self, feature_cls)
-                for feature_cls in self.__class__.__features__
-            ]
-
-        child = self.get_child_middleware()
-
-        if child is not None:
-            result += child.features()
-
-        return result
-
-    def has_feature(self, name):
-        """
-        Check if feature exists.
-
-        :param name: feature's name
-        :type name: str
-
-        :returns: ``True`` if feature exists, ``False`` otherwise
-        :rtype: bool
-        """
-
-        for _, feature in self.features():
-            if feature.name == name:
-                return True
-
-        return False
-
-    def get_feature(self, name, *args, **kwargs):
-        """
-        Instantiate feature.
-
-        :param name: feature's name
-        :type name: str
-
-        :param args: Positional arguments for feature's constructor
-        :param kwargs: Keyword arguments for feature's constructor
-
-        :returns: Newly created feature
-        :rtype: Feature
-
-        :raises AttributeError: When feature does not exist
-        """
-
-        for middleware, feature in self.features():
-            if feature.name == name:
-                return feature(middleware, *args, **kwargs)
-
-        raise AttributeError('No such feature: {0}'.format(name))
-
-
-class Feature(object):
-    """
-    Base class for middleware's feature.
-
-    :param middleware: Middleware providing this feature
-    :type middleware: Middleware
-    """
-
-    name = None
-
-    def __init__(self, middleware, *args, **kwargs):
-        super(Feature, self).__init__(*args, **kwargs)
-
-        self.middleware = middleware

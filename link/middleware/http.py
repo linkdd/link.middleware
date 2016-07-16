@@ -1,16 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from b3j0f.conf import Configurable, category
-
-from link.middleware.core import Middleware
-from link.middleware import CONF_BASE_PATH
+from link.middleware.core import Middleware, register_middleware
 import requests
 
 
-@Configurable(
-    paths='{0}/http.conf'.format(CONF_BASE_PATH),
-    conf=category('HTTP')
-)
+@register_middleware
 class HTTPMiddleware(Middleware):
     """
     HTTP middleware.
