@@ -109,8 +109,8 @@ class Middleware(object):
 
         return middlewares
 
-    @staticmethod
-    def get_middleware_by_uri(uri, cache=True):
+    @classmethod
+    def get_middleware_by_uri(basecls, uri, cache=True):
         """
         Resolve URI to instantiate a middleware.
 
@@ -120,6 +120,8 @@ class Middleware(object):
         :type cache: bool
         :returns: Pointed middleware
         :rtype: Middleware
+
+        :raises basecls.Error: if middleware is not an instance of ``basecls``
         """
 
         middleware = None
@@ -232,6 +234,14 @@ class Middleware(object):
 
         else:
             middleware = MIDDLEWARES_BY_URL[uri]
+
+        if not isinstance(middleware, basecls):
+            raise basecls.Error(
+                'Middleware <{0}> is not an instance of {1}'.format(
+                    middleware.__class__.__name__,
+                    basecls.__name__
+                )
+            )
 
         return middleware
 

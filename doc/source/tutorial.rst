@@ -162,3 +162,20 @@ Here:
  * ``proto3`` is the child middleware of ``proto2``
  * ``proto2`` is the child middleware of ``proto1``
  * ``proto1`` will be returned by ``Middleware.get_middleware_by_uri()``
+
+Finally, the class method ``get_middleware_by_uri()`` verify that the new middleware
+is an instance of the calling class, thus, this code will raise an exception:
+
+.. code-block:: python
+
+   @register_middleware
+   class MyMiddleware(Middleware):
+       __protocols__ = ['myprotocol']
+
+
+   @register_middleware
+   class NotMyMiddleware(Middleware):
+       __protocols__ = ['notmyprotocol']
+
+
+   mid = MyMiddleware.get_middleware_by_uri('notmyprotocol://')

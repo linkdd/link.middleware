@@ -160,6 +160,14 @@ class TestMiddleware(UTCase):
 
             self.assertItemsEqual(parseduri_query, parsedres_query)
 
+    def test_10_basecls(self):
+        mid = SuperDummy.get_middleware_by_uri('dummy://')
+
+        self.assertIsInstance(mid, SuperDummy)
+
+        with self.assertRaises(NotSoDummy.Error):
+            mid = NotSoDummy.get_middleware_by_uri('dummy://')
+
 
 if __name__ == '__main__':
     main()
