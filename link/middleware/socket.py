@@ -34,7 +34,7 @@ class SocketMiddleware(ConnectableMiddleware):
             sock.close()
 
     def _isconnected(self, socks):
-        return any([sock is not None for sock in socks])
+        return socks is not None and any([sock is not None for sock in socks])
 
     def _send(self, sock, data):
         """
