@@ -12,14 +12,6 @@ link.middleware.core module
     :undoc-members:
     :show-inheritance:
 
-link.middleware.confdriver module
----------------------------------
-
-.. automodule:: link.middleware.confdriver
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 link.middleware.connectable module
 ----------------------------------
 
