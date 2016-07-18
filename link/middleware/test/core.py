@@ -63,6 +63,11 @@ class TestMiddleware(UTCase):
         constraints = Dummy.constraints()
         self.assertEqual(constraints, [SuperDummy])
 
+        Middleware.get_middleware_by_uri('notsodummy+dummy://')
+
+        with self.assertRaises(Middleware.Error):
+            Middleware.get_middleware_by_uri('dummy+notsodummy://')
+
     def test_04_uri(self):
         uri = 'dummy://user@host,host2:80/path/subpath'
         mid = Middleware.get_middleware_by_uri(uri)

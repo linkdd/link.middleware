@@ -161,12 +161,17 @@ class Middleware(object):
                     for candidate in classes:
                         bases = candidate.constraints()
 
-                        for base in bases:
-                            if base in middleware.__class__.mro():
-                                cls = candidate
+                        if bases:
+                            for base in bases:
+                                if base in middleware.__class__.mro():
+                                    cls = candidate
+                                    break
+
+                            if cls is not None:
                                 break
 
-                        if cls is not None:
+                        else:
+                            cls = candidate
                             break
 
                     else:
@@ -345,17 +350,18 @@ class Middleware(object):
 
         bases = self.__class__.constraints()
 
-        for base in bases:
-            if base in middleware.__class__.mro():
-                break
+        if bases:
+            for base in bases:
+                if base in middleware.__class__.mro():
+                    break
 
-        else:
-            raise Middleware.Error(
-                'Middleware <{0}> does not validates <{1}> constraints'.format(
+            else:
+                err = 'Middleware <{0}> does not validates <{1}> constraints'
+
+                raise Middleware.Error(err.format(
                     middleware.__class__.__name__,
                     self.__class__.__name__
-                )
-            )
+                ))
 
         self._child = middleware
 
