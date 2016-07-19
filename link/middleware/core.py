@@ -381,3 +381,5 @@ class Middleware(object):
                     middleware.__class__.__name__,
                     self.__class__.__name__
                 ))
+
+        self.__child = middleware
