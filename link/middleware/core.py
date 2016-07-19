@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from b3j0f.utils.iterable import isiterable
+from link.feature import featuredprop
 
 from six.moves.urllib.parse import urlunsplit, SplitResult
 from six.moves.urllib.parse import urlsplit, parse_qsl
@@ -270,7 +271,7 @@ class Middleware(object):
         self.path = path
         self.fragment = fragment
 
-        self._child = None
+        self.__child = None
 
     def tourl(self):
         """
@@ -348,6 +349,24 @@ class Middleware(object):
         :type middleware: Middleware
         """
 
+        self._child = middleware
+
+    def get_child_middleware(self):
+        """
+        Get child middleware.
+
+        :returns: Child middleware or None
+        :rtype: Middleware
+        """
+
+        return self._child
+
+    @featuredprop
+    def _child(self):
+        return self.__child
+
+    @_child.setter
+    def _child(self, middleware):
         bases = self.__class__.constraints()
 
         if bases:
@@ -362,15 +381,3 @@ class Middleware(object):
                     middleware.__class__.__name__,
                     self.__class__.__name__
                 ))
-
-        self._child = middleware
-
-    def get_child_middleware(self):
-        """
-        Get child middleware.
-
-        :returns: Child middleware or None
-        :rtype: Middleware
-        """
-
-        return self._child
