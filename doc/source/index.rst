@@ -48,10 +48,6 @@ Check out the source code on Github_.
    :target: https://landscape.io/github/linkdd/link.middleware/master
    :alt: Code Health
 
-.. image:: https://www.quantifiedcode.com/api/v1/project/58c1e77fabff49f0922dac36f7d25e50/badge.svg
-  :target: https://www.quantifiedcode.com/app/project/58c1e77fabff49f0922dac36f7d25e50
-  :alt: Code issues
-
 Installation
 ------------
 
@@ -81,6 +77,6 @@ Features
 Donating
 --------
 
-.. image:: https://cdn.rawgit.com/gratipay/gratipay-badge/2.3.0/dist/gratipay.svg
-   :target: https://gratipay.com/~linkdd/
-   :alt: Support via Gratipay
+.. image:: https://liberapay.com/assets/widgets/donate.svg
+   :target: https://liberapay.com/linkdd/donate
+   :alt: Support via Liberapay
